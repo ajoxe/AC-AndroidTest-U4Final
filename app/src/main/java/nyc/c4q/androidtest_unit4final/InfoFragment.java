@@ -16,12 +16,25 @@ public class InfoFragment extends Fragment {
 
     TextView moreText;
     Button moreButton;
+    View rootView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View v = inflater.inflate(R.layout.info_fragment, container, false);
-        return v;
+        rootView  = inflater.inflate(R.layout.info_fragment, container, false);
+        moreButton = (Button) rootView.findViewById(R.id.more_button);
+        moreText = (TextView) rootView.findViewById(R.id.more_textView);
+        moreText.setVisibility(View.GONE);
+        moreButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                    moreButton.setVisibility(View.GONE);
+                    moreText.setVisibility(View.VISIBLE);
+
+            }
+        });
+        return rootView;
     }
 }
