@@ -23,4 +23,7 @@ public class Sort {
         // You may not implement another sorting algorithm that is not "selection sort"
         // Tip: Try a version without ordering first.
     }
+    public void selectionSortAscending(List<String> list){
+
+    }
 }

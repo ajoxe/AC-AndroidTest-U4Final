@@ -1,9 +1,12 @@
 package nyc.c4q.androidtest_unit4final;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -11,8 +14,20 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -23,12 +38,17 @@ public class MainActivity extends AppCompatActivity {
     View.OnClickListener colorClickListener;
     private static String TAG = "OnClick";
     LinearLayout fragmentContainer;
+    String url = "https://raw.githubusercontent.com/operable/cog/master/priv/css-color-names.json";
+    String jsonString;
+    List<String> jsonArrayNames = new ArrayList<>();
+    HashMap<String, String> colorMap = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         fragmentContainer = (LinearLayout) findViewById(R.id.fragment_container);
+        makeRequestWithOkHttp(url);
 
         colorDict = new HashMap<>();
         colorDict.put("indigo", "#4b0082");
@@ -85,6 +105,96 @@ public class MainActivity extends AppCompatActivity {
             fragmentContainer.setVisibility(View.VISIBLE);
         }
         return true;
+    }
+
+    private void makeRequestWithOkHttp(String url) {
+        OkHttpClient client = new OkHttpClient();   // 1
+        Request request = new Request.Builder().url(url).build();  // 2
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Request request, IOException e) { // 3
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Response response) throws IOException {
+                final String result = response.body().string();// 4
+                jsonString = result;
+                parseJson(jsonString);
+                //test parsing
+                for(int i = 0; i<jsonArrayNames.size(); i++){
+                    Log.d("names array keys", jsonArrayNames.get(i));
+                }
+                Log.d("colorMap size", String.valueOf(colorMap.size()));
+
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            // perform some ui work with `result`  // 5
+
+
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    private JSONObject setJSon(String jSonString) {
+        JSONObject jsonObject = null;
+        try {
+            jsonObject = new JSONObject(jSonString);
+        } catch (JSONException e) {
+
+        }
+        return jsonObject;
+    }
+
+    private JSONArray getJsonArray(JSONObject jsonObject) {
+        JSONArray jsonArray = new JSONArray();
+            jsonArray = jsonObject.names();
+        return jsonArray;
+    }
+
+    public void parseJson(String json){
+        //get json object
+        JSONObject jsonObject = setJSon(json);
+        //get keys from jsonobject, add to arraylist.
+        JSONArray names = getJsonArray(jsonObject);
+        for(int i =0; i< names.length(); i++){
+            try {
+                jsonArrayNames.add(names.getString(i));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        for(int i =0; i<jsonArrayNames.size(); i++){
+            String colorKey = jsonArrayNames.get(i);
+            String hexValue;
+            try {
+                hexValue  = jsonObject.getString(colorKey);
+            } catch (JSONException e) {
+               hexValue  = "n/a";
+                e.printStackTrace();
+            }
+            colorMap.put(colorKey,hexValue);
+            //test parsing.
+            Log.d("hex values", hexValue);
+        }
+
+    }
+    public class JsonColors{
+        String [] colors;
+
+        public String[] getColors() {
+            return colors;
+        }
     }
 
     // TODO: Add options menu with the item "Info" which is always visible
