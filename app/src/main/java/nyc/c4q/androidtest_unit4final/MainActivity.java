@@ -42,6 +42,9 @@ public class MainActivity extends AppCompatActivity {
     String jsonString;
     List<String> jsonArrayNames = new ArrayList<>();
     HashMap<String, String> colorMap = new HashMap<>();
+    RecyclerView recyclerView;
+
+    // TODO: adding all the colors and their values would be tedious, instead fetch it from the url below
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,35 +52,25 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         fragmentContainer = (LinearLayout) findViewById(R.id.fragment_container);
         makeRequestWithOkHttp(url);
-
-
-        //colorDict.put("indigo", "#4b0082");
-        //colorDict.put("green", "#00ff00");
-        //colorDict.put("blue", "#0000ff");
-        //colorDict.put("red", "#ff0000");
-        // TODO: adding all the colors and their values would be tedious, instead fetch it from the url below
-        // https://raw.githubusercontent.com/operable/cog/master/priv/css-color-names.json
         colorClickListener = setColorClickListener();
+        setUpRecyclerView();
+    }
 
-
-        //String[] names = new String[] {"blue", "red", "purple", "indigo", "orange", "brown", "black", "green"};
-        //for(String n: names) colorsList.add(n);
-
-
-
-
-        RecyclerView recyclerView = findViewById(R.id.rv);
+    //sets up RecyclerView so onCreate isn't so messy
+    public void setUpRecyclerView() {
+        recyclerView = findViewById(R.id.rv);
         adapter = new ColorAdapter(colorsList, colorDict, colorClickListener);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
-    //sets clickListener for recyclerview item
-    public View.OnClickListener setColorClickListener(){
+
+
+    // TODO display a long toast with the text "{color_name} has a HEX value of {color_hex}  // for example: "blue has a HEX value of #0000ff"
+    //sets clickListener for recyclerview itemview
+    public View.OnClickListener setColorClickListener() {
         colorClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // display a long toast with the text "{color_name} has a HEX value of {color_hex}
-                // for example: "blue has a HEX value of #0000ff"
                 String thisColor = v.getTag().toString();
                 String toastMessage = thisColor;
                 StringBuilder sb = new StringBuilder(toastMessage);
@@ -85,24 +78,25 @@ public class MainActivity extends AppCompatActivity {
                 sb.append(" has a Hex value of ");
                 sb.append(colorHex);
                 toastMessage = sb.toString();
-                Toast.makeText(getApplicationContext(),toastMessage,Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
             }
         };
         return colorClickListener;
     }
 
+    //inflate info menu
     @Override
-    public boolean onCreateOptionsMenu(Menu menu){
+    public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.info_options_menu, menu);
         return true;
     }
 
-
+    //hides top fragment when info is clicked.
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         //return super.onOptionsItemSelected(item);
-        if (fragmentContainer.getVisibility() == View.VISIBLE){
+        if (fragmentContainer.getVisibility() == View.VISIBLE) {
             fragmentContainer.setVisibility(View.GONE);
         } else {
             fragmentContainer.setVisibility(View.VISIBLE);
@@ -110,6 +104,8 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    //gets the JSON string from url. parses json, updates list and map, and notifies the adapter.
+    // with more time I would put these things in their own classes.
     private void makeRequestWithOkHttp(String url) {
         OkHttpClient client = new OkHttpClient();   // 1
         Request request = new Request.Builder().url(url).build();  // 2
@@ -125,22 +121,19 @@ public class MainActivity extends AppCompatActivity {
                 final String result = response.body().string();// 4
                 jsonString = result;
                 parseJson(jsonString);
-                //test parsing
+
                 colorsList.addAll(jsonArrayNames);
                 colorDict.putAll(colorMap);
+                /*//test parsing
                 for(int i = 0; i<jsonArrayNames.size(); i++){
                     Log.d("names array keys", jsonArrayNames.get(i));
                 }
-                Log.d("colorMap size", String.valueOf(colorMap.size()));
-
+                Log.d("colorMap size", String.valueOf(colorMap.size()));*/
                 MainActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         try {
-                            // perform some ui work with `result`  // 5
                             adapter.notifyDataSetChanged();
-
-
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -150,6 +143,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    //parsing Json below
     private JSONObject setJSon(String jSonString) {
         JSONObject jsonObject = null;
         try {
@@ -162,16 +156,16 @@ public class MainActivity extends AppCompatActivity {
 
     private JSONArray getJsonArray(JSONObject jsonObject) {
         JSONArray jsonArray = new JSONArray();
-            jsonArray = jsonObject.names();
+        jsonArray = jsonObject.names();
         return jsonArray;
     }
 
-    public void parseJson(String json){
+    public void parseJson(String json) {
         //get json object
         JSONObject jsonObject = setJSon(json);
         //get keys from jsonobject, add to arraylist.
         JSONArray names = getJsonArray(jsonObject);
-        for(int i =0; i< names.length(); i++){
+        for (int i = 0; i < names.length(); i++) {
             try {
                 jsonArrayNames.add(names.getString(i));
             } catch (JSONException e) {
@@ -179,26 +173,18 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        for(int i =0; i<jsonArrayNames.size(); i++){
+        for (int i = 0; i < jsonArrayNames.size(); i++) {
             String colorKey = jsonArrayNames.get(i);
             String hexValue;
             try {
-                hexValue  = jsonObject.getString(colorKey);
+                hexValue = jsonObject.getString(colorKey);
             } catch (JSONException e) {
-               hexValue  = "n/a";
+                hexValue = "n/a";
                 e.printStackTrace();
             }
-            colorMap.put(colorKey,hexValue);
+            colorMap.put(colorKey, hexValue);
             //test parsing.
             Log.d("hex values", hexValue);
-        }
-
-    }
-    public class JsonColors{
-        String [] colors;
-
-        public String[] getColors() {
-            return colors;
         }
     }
 

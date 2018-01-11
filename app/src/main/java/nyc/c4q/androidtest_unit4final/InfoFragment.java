@@ -19,9 +19,7 @@ public class InfoFragment extends Fragment {
     View rootView;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView  = inflater.inflate(R.layout.info_fragment, container, false);
         moreButton = (Button) rootView.findViewById(R.id.more_button);
         moreText = (TextView) rootView.findViewById(R.id.more_textView);
