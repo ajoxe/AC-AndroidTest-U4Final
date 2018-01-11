@@ -33,8 +33,8 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private ColorAdapter adapter;
-    protected HashMap<String, String> colorDict;
-    protected List<String> colorsList;
+    protected HashMap<String, String> colorDict = new HashMap<>();
+    protected List<String> colorsList = new ArrayList<>();
     View.OnClickListener colorClickListener;
     private static String TAG = "OnClick";
     LinearLayout fragmentContainer;
@@ -50,18 +50,20 @@ public class MainActivity extends AppCompatActivity {
         fragmentContainer = (LinearLayout) findViewById(R.id.fragment_container);
         makeRequestWithOkHttp(url);
 
-        colorDict = new HashMap<>();
-        colorDict.put("indigo", "#4b0082");
-        colorDict.put("green", "#00ff00");
-        colorDict.put("blue", "#0000ff");
-        colorDict.put("red", "#ff0000");
+
+        //colorDict.put("indigo", "#4b0082");
+        //colorDict.put("green", "#00ff00");
+        //colorDict.put("blue", "#0000ff");
+        //colorDict.put("red", "#ff0000");
         // TODO: adding all the colors and their values would be tedious, instead fetch it from the url below
         // https://raw.githubusercontent.com/operable/cog/master/priv/css-color-names.json
         colorClickListener = setColorClickListener();
 
-        colorsList = new ArrayList<>();
-        String[] names = new String[] {"blue", "red", "purple", "indigo", "orange", "brown", "black", "green"};
-        for(String n: names) colorsList.add(n);
+
+        //String[] names = new String[] {"blue", "red", "purple", "indigo", "orange", "brown", "black", "green"};
+        //for(String n: names) colorsList.add(n);
+
+
 
         RecyclerView recyclerView = findViewById(R.id.rv);
         adapter = new ColorAdapter(colorsList, colorDict, colorClickListener);
@@ -123,6 +125,8 @@ public class MainActivity extends AppCompatActivity {
                 jsonString = result;
                 parseJson(jsonString);
                 //test parsing
+                colorsList.addAll(jsonArrayNames);
+                colorDict.putAll(colorMap);
                 for(int i = 0; i<jsonArrayNames.size(); i++){
                     Log.d("names array keys", jsonArrayNames.get(i));
                 }
@@ -133,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
                         try {
                             // perform some ui work with `result`  // 5
-
+                            adapter.notifyDataSetChanged();
 
 
                         } catch (Exception e) {
