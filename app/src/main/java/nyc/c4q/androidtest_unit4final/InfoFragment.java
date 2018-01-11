@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 /**
@@ -13,7 +14,8 @@ import android.widget.TextView;
 
 public class InfoFragment extends Fragment {
 
-    TextView
+    TextView moreText;
+    Button moreButton;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
