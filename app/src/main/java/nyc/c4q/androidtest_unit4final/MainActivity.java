@@ -65,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+
         RecyclerView recyclerView = findViewById(R.id.rv);
         adapter = new ColorAdapter(colorsList, colorDict, colorClickListener);
         recyclerView.setAdapter(adapter);
