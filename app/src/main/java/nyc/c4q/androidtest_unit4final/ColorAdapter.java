@@ -20,9 +20,11 @@ public class ColorAdapter extends RecyclerView.Adapter<ColorAdapter.ColorViewHol
     private static String TAG = "ColorAdapter";
     private List<String> colorNames;
     private HashMap<String, String> colorDict;
+    private View.OnClickListener colorClickListener;
 
-    public ColorAdapter(List<String> colors, HashMap<String, String> colorMap) {
+    public ColorAdapter(List<String> colors, HashMap<String, String> colorMap, View.OnClickListener colorClickListener) {
         Sort.selectionSort(colors, true);
+        this.colorClickListener = colorClickListener;
         colorNames = colors;
         colorDict = colorMap;
     }
@@ -46,6 +48,8 @@ public class ColorAdapter extends RecyclerView.Adapter<ColorAdapter.ColorViewHol
             // display a long toast with the text "{color_name} has a HEX value of {color_hex}
             // for example: "blue has a HEX value of #0000ff"
         }
+        holder.itemView.setTag(color);
+        holder.itemView.setOnClickListener(colorClickListener);
     }
 
     @Override

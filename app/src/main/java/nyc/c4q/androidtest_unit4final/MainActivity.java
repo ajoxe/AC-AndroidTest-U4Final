@@ -1,9 +1,13 @@
 package nyc.c4q.androidtest_unit4final;
 
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,6 +18,8 @@ public class MainActivity extends AppCompatActivity {
     private ColorAdapter adapter;
     protected HashMap<String, String> colorDict;
     protected List<String> colorsList;
+    View.OnClickListener colorClickListener;
+    private static String TAG = "OnClick";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,15 +33,35 @@ public class MainActivity extends AppCompatActivity {
         colorDict.put("red", "#ff0000");
         // TODO: adding all the colors and their values would be tedious, instead fetch it from the url below
         // https://raw.githubusercontent.com/operable/cog/master/priv/css-color-names.json
+        colorClickListener = setColorClickListener();
 
         colorsList = new ArrayList<>();
         String[] names = new String[] {"blue", "red", "purple", "indigo", "orange", "brown", "black", "green"};
         for(String n: names) colorsList.add(n);
 
         RecyclerView recyclerView = findViewById(R.id.rv);
-        adapter = new ColorAdapter(colorsList, colorDict);
+        adapter = new ColorAdapter(colorsList, colorDict, colorClickListener);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+    }
+    //sets clickListener for recyclerview item
+    public View.OnClickListener setColorClickListener(){
+        colorClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // display a long toast with the text "{color_name} has a HEX value of {color_hex}
+                // for example: "blue has a HEX value of #0000ff"
+                String thisColor = v.getTag().toString();
+                String toastMessage = thisColor;
+                StringBuilder sb = new StringBuilder(toastMessage);
+                String colorHex = colorDict.get(thisColor);
+                sb.append(" has a Hex value of ");
+                sb.append(colorHex);
+                toastMessage = sb.toString();
+                Toast.makeText(getApplicationContext(),toastMessage,Toast.LENGTH_SHORT).show();
+            }
+        };
+        return colorClickListener;
     }
 
     // TODO: Add options menu with the item "Info" which is always visible
